@@ -1,0 +1,23 @@
+#define _POSIX_C_SOURCE 200809L
+#include <stdio.h>
+#include <stdlib.h>   // for free(), exit(), EXIT_FAILURE
+
+int main(void) {
+    char *buff = NULL;
+    size_t size = 0;
+    ssize_t num_char;
+
+    printf("Enter a line: ");
+    num_char = getline(&buff, &size, stdin);
+
+    if (num_char == -1) {
+        perror("getline failed");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("You typed: %s", buff);
+
+    free(buff);
+    return 0;
+}
+

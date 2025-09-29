@@ -1,0 +1,80 @@
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define HIST_CAP 5
+
+typedef struct {
+  char *items[HIST_CAP];
+  int start;
+  int size;
+} History;
+
+static void history_init(History *h) {
+  h->start = 0;
+  h->size = 0;
+  for (int i = 0; i < HIST_CAP; i++)
+    h->items[i] = NULL;
+}
+
+static void history_clear(History *h) {
+  for (int i = 0; i < h->size; i++) {
+    int idx = (h->start + i) % HIST_CAP;
+    free(h->items[idx]);
+    h->items[idx] = NULL;
+  }
+  h->start = 0;
+  h->size = 0;
+}
+
+static void history_push(History *h, const char *s) {
+  char *copy = strdup(s ? s : "");
+  if (!copy)
+    return;
+  if (h->size < HIST_CAP) {
+    int pos = (h->start + h->size) % HIST_CAP;
+    h->items[pos] = copy;
+    h->size++;
+  } else {
+    free(h->items[h->start]);
+    h->items[h->start] = copy;
+    h->start = (h->start + 1) % HIST_CAP;
+  }
+}
+
+static void history_print(const History *h) {
+  for (int i = 0; i < h->size; i++) {
+    int idx = (h->start + i) % HIST_CAP;
+    printf("%s\n", h->items[idx]);
+  }
+}
+
+int main(void) {
+  History hist;
+  history_init(&hist);
+
+  char *line = NULL;
+  size_t cap = 0;
+  ssize_t nread;
+
+  for (;;) {
+    printf("Enter input: ");
+    fflush(stdout);
+
+    nread = getline(&line, &cap, stdin);
+    if (nread == -1)
+      break;
+    if (nread > 0 && line[nread - 1] == '\n')
+      line[nread - 1] = '\0';
+
+    history_push(&hist, line);
+
+    if (strcmp(line, "print") == 0)
+      history_print(&hist);
+  }
+
+  history_clear(&hist);
+  free(line);
+  return 0;
+}

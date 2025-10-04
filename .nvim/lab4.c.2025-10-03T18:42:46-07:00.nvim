@@ -1,0 +1,40 @@
+#include <unistd.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdio.h>
+
+void *sbrk(intptr_t increment);
+
+
+struct header {
+    uint64_t size;
+    struct header *next;
+};
+
+int main(void) {
+    void *base = sbrk(256);            // 256바이트 확보
+    struct header *h1 = (struct header*)base;
+    struct header *h2 = (struct header*)((char*)base + 128);
+
+    h1->size = 128; h1->next = NULL;
+    h2->size = 128; h2->next = h1;
+
+    size_t hsz = sizeof(struct header);
+    size_t dsz = 128 - hsz;
+
+    memset((char*)h1 + hsz, 0, dsz);
+    memset((char*)h2 + hsz, 1, dsz);
+
+    printf("first block: %p\n", (void*)h1);
+    printf("second block: %p\n", (void*)h2);
+    printf("first block size: %lu\n", h1->size);
+    printf("first block next: %p\n", (void*)h1->next);
+    printf("second block size: %lu\n", h2->size);
+    printf("second block next: %p\n", (void*)h2->next);
+
+    // 데이터 값 확인
+    for (size_t i = 0; i < dsz; i++) printf("%d\n", *((unsigned char*)h1 + hsz + i));
+    for (size_t i = 0; i < dsz; i++) printf("%d\n", *((unsigned char*)h2 + hsz + i));
+
+    return 0;
+}

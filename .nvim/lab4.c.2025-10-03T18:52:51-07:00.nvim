@@ -1,0 +1,104 @@
+// lab4.c — CMPT-201 Lab 4: Heap Size with sbrk()
+// 요구사항: sbrk()로 256B 확보 → 128B 블록 2개(헤더+데이터) → 0/1 채우기 → 주소/헤더/데이터 출력
+#define _GNU_SOURCE
+#include <unistd.h>     // sbrk, write
+#include <stdint.h>     // uint64_t, uintptr_t
+#include <string.h>     // memset
+#include <stdio.h>      // snprintf
+#include <stdlib.h>     // _exit
+#include <sys/types.h>  // intptr_t
+
+// 일부 환경에서 sbrk 원형이 안 보일 수 있어 명시
+void *sbrk(intptr_t increment);
+
+#define TOTAL_BYTES 256
+#define BLOCK_BYTES 128
+#define BUF_SIZE    128
+
+struct header {
+    uint64_t size;
+    struct header *next;
+};
+
+// 과제에서 제공된 형태의 출력 함수
+static void handle_error(const char *m){
+  char b[BUF_SIZE];
+  int n = snprintf(b, sizeof(b), "%s\n", m);
+  if (n > 0) write(STDOUT_FILENO, b, (size_t)n);
+  _exit(1);
+}
+
+static void print_out(char *format, void *data, size_t data_size) {
+  char buf[BUF_SIZE];
+  ssize_t len;
+if (data_size == sizeof(uint64_t)) {
+    len = snprintf(buf, BUF_SIZE, format, *(uint64_t *)data);
+} else {
+    len = snprintf(buf, BUF_SIZE, format, *(void **)data);
+}
+
+  if (len < 0) handle_error("snprintf");
+  write(STDOUT_FILENO, buf, (size_t)len);
+}
+
+static void print_ptr(const char *label, void *p){
+  char fmt[64];
+  snprintf(fmt, sizeof(fmt), "%s%%p\n", label);
+  void *tmp = p;
+  print_out(fmt, &tmp, 0); // data_size=0 → 포인터 분기
+}
+
+static void print_u64(const char *label, uint64_t v){
+  char fmt[64];
+  snprintf(fmt, sizeof(fmt), "%s%%lu\n", label);
+  uint64_t tmp = v;
+  print_out(fmt, &tmp, sizeof(uint64_t)); // 숫자 분기
+}
+
+static inline void print_byte(uint8_t v){
+  char out[2] = { (char)('0' + (v ? 1 : 0)), '\n' };
+  write(STDOUT_FILENO, out, 2);
+}
+
+int main(void){
+  // 1) 힙 256B 확보
+  void *base = sbrk(TOTAL_BYTES);
+  if (base == (void*)-1) handle_error("sbrk failed");
+
+  // 2) 블록 시작 주소 (바이트 단위 산술은 (char*)에서)
+  char *b1 = (char*)base;
+  char *b2 = (char*)base + BLOCK_BYTES;
+
+  // 3) 헤더는 블록 시작에 위치
+  struct header *h1 = (struct header*)b1;
+  struct header *h2 = (struct header*)b2;
+
+  // 4) 헤더 초기화: size=128, next: 2→1, 1→NULL
+  h1->size = BLOCK_BYTES;  h1->next = NULL;
+  h2->size = BLOCK_BYTES;  h2->next = h1;
+
+  // 5) 데이터 영역 시작/크기 (헤더 제외)
+  size_t hsz = sizeof(struct header);
+  size_t dsz = BLOCK_BYTES - hsz;
+  uint8_t *d1 = (uint8_t*)((char*)h1 + hsz);
+  uint8_t *d2 = (uint8_t*)((char*)h2 + hsz);
+
+  // 6) 주소/헤더 출력 (초기화 전)
+  print_ptr("first block:       ", h1);
+  print_ptr("second block:      ", h2);
+  print_u64("first block size:  ", h1->size);
+  print_ptr("first block next:  ", h1->next);
+  print_u64("second block size: ", h2->size);
+  print_ptr("second block next: ", h2->next);
+
+  // 7) 데이터 채우기: 1번=0, 2번=1
+  memset(d1, 0, dsz);
+  memset(d2, 1, dsz);
+
+  // 8) 바이트 단위로 데이터 출력 (헤더 제외)
+  for (size_t i = 0; i < dsz; ++i) print_byte(*((uint8_t*)d1 + i)); // 0들
+  for (size_t i = 0; i < dsz; ++i) print_byte(*((uint8_t*)d2 + i)); // 1들
+
+  return 0;
+}
+

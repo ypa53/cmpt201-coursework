@@ -1,0 +1,468 @@
+ lab4.c +
+    3 #include <string.h>
+    4 #include <stdio.h>
+    5
+    6 struct header {
+    7 ┆ ┆ uint64_t size;
+    8 ┆ ┆ struct header *next;
+    9 };
+   10
+   11 int main(void) {
+E  12 ┆ ┆ void *base = sbrk(256);            // 256바이트 확보     ■■ call to undeclared function 'sb
+   13 ┆ ┆ struct header *h1 = (struct header*)base;
+   14 ┆ ┆ struct header *h2 = (struct header*)((char*)base + 128);
+   15 ┆ ┆
+   16 ┆ ┆ h1->size = 128; h1->next = NULL;
+   17 ┆ ┆ h2->size = 128; h2->next = h1;
+   18 ┆ ┆
+   19 ┆ ┆ size_t hsz = sizeof(struct header);
+   20 ┆ ┆ size_t dsz = 128 - hsz;
+   21 ┆ ┆
+   22 ┆ ┆ memset((char*)h1 + hsz, 0, dsz);
+   23 ┆ ┆ memset((char*)h2 + hsz, 1, dsz);
+   24 ┆ ┆
+   25 ┆ ┆ printf("first block: %p\n", (void*)h1);
+   26 ┆ ┆ printf("second block: %p\n", (void*)h2);
+   27 ┆ ┆ printf("first block size: %lu\n", h1->size);
+   28 ┆ ┆ printf("first block next: %p\n", (void*)h1->next);
+   29 ┆ ┆ printf("second block size: %lu\n", h2->size);
+   30 ┆ ┆ printf("second block next: %p\n", (void*)h2->next);
+   31 ┆ ┆
+   32 ┆ ┆ // 데이터 값 확인
+   33 ┆ ┆ for (size_t i = 0; i < dsz; i++) printf("%d\n", *((unsigned char*)h1 + hsz + i));
+   34 ┆ ┆ for (size_t i = 0; i < dsz; i++) printf("%d\n", *((unsigned char*)h2 + hsz + i));
+   35 ┆ ┆
+   36 ┆ ┆ return 0;
+   37 }
+~
+ NORMAL  lab4.c | +                                             E: 2  unix | utf-8 | c  100%   37:1
+ lab4.c +
+    3 #include <string.h>
+    4 #include <stdio.h>
+    5
+    6 struct header {
+    7 ┆ ┆ uint64_t size;
+    8 ┆ ┆ struct header *next;
+    9 };
+   10
+   11 int main(void) {
+E  12 ┆ ┆ void *base = sbrk(256);            // 256바이트 확보     ■■ call to undeclared function 'sbr
+   13 ┆ ┆ struct header *h1 = (struct header*)base;
+   14 ┆ ┆ struct header *h2 = (struct header*)((char*)base + 128);
+   15 ┆ ┆
+   16 ┆ ┆ h1->size = 128; h1->next = NULL;
+   17 ┆ ┆ h2->size = 128; h2->next = h1;
+   18 ┆ ┆
+   19 ┆ ┆ size_t hsz = sizeof(struct header);
+   20 ┆ ┆ size_t dsz = 128 - hsz;
+   21 ┆ ┆
+   22 ┆ ┆ memset((char*)h1 + hsz, 0, dsz);
+   23 ┆ ┆ memset((char*)h2 + hsz, 1, dsz);
+   24 ┆ ┆
+   25 ┆ ┆ printf("first block: %p\n", (void*)h1);
+   26 ┆ ┆ printf("second block: %p\n", (void*)h2);
+   27 ┆ ┆ printf("first block size: %lu\n", h1->size);
+   28 ┆ ┆ printf("first block next: %p\n", (void*)h1->next);
+   29 ┆ ┆ printf("second block size: %lu\n", h2->size);
+   30 ┆ ┆ printf("second block next: %p\n", (void*)h2->next);
+   31 ┆ ┆
+   32 ┆ ┆ // 데이터 값 확인
+   33 ┆ ┆ for (size_t i = 0; i < dsz; i++) printf("%d\n", *((unsigned char*)h1 + hsz + i));
+   34 ┆ ┆ for (size_t i = 0; i < dsz; i++) printf("%d\n", *((unsigned char*)h2 + hsz + i));
+   35 ┆ ┆
+   36 ┆ ┆ return 0;
+   37 }
+~
+ NORMAL  lab4.c | +                                              E: 2  unix | utf-8 | c  100%   37:1
+ lab4.c +
+    1 #include <unistd.h>
+    2 #include <stdint.h>
+    3 #include <string.h>
+    4 #include <stdio.h>
+    5
+    6 struct header {
+    7 ┆ ┆ uint64_t size;
+    8 ┆ ┆ struct header *next;
+    9 };
+   10
+   11 int main(void) {
+E  12 ┆ ┆ void *base = sbrk(256);            // 256바이트 확보     ■■ call to undeclared function 'sbrk'
+   13 ┆ ┆ struct header *h1 = (struct header*)base;
+   14 ┆ ┆ struct header *h2 = (struct header*)((char*)base + 128);
+   15 ┆ ┆
+   16 ┆ ┆ h1->size = 128; h1->next = NULL;
+   17 ┆ ┆ h2->size = 128; h2->next = h1;
+   18 ┆ ┆
+   19 ┆ ┆ size_t hsz = sizeof(struct header);
+   20 ┆ ┆ size_t dsz = 128 - hsz;
+   21 ┆ ┆
+   22 ┆ ┆ memset((char*)h1 + hsz, 0, dsz);
+   23 ┆ ┆ memset((char*)h2 + hsz, 1, dsz);
+   24 ┆ ┆
+   25 ┆ ┆ printf("first block: %p\n", (void*)h1);
+   26 ┆ ┆ printf("second block: %p\n", (void*)h2);
+   27 ┆ ┆ printf("first block size: %lu\n", h1->size);
+   28 ┆ ┆ printf("first block next: %p\n", (void*)h1->next);
+   29 ┆ ┆ printf("second block size: %lu\n", h2->size);
+   30 ┆ ┆ printf("second block next: %p\n", (void*)h2->next);
+   31 ┆ ┆
+   32 ┆ ┆ // 데이터 값 확인
+   33 ┆ ┆ for (size_t i = 0; i < dsz; i++) printf("%d\n", *((unsigned char*)h1 + hsz + i));
+   34 ┆ ┆ for (size_t i = 0; i < dsz; i++) printf("%d\n", *((unsigned char*)h2 + hsz + i));
+   35 ┆ ┆
+   36 ┆ ┆ return 0;
+   37 }
+~
+ NORMAL  lab4.c | +                                                E: 2  unix | utf-8 | c  100%   37:1
+ lab4.c +
+    1 #include <unistd.h>
+    2 #include <stdint.h>
+    3 #include <string.h>
+    4 #include <stdio.h>
+    5
+    6 struct header {
+    7 ┆ ┆ uint64_t size;
+    8 ┆ ┆ struct header *next;
+    9 };
+   10
+   11 int main(void) {
+E  12 ┆ ┆ void *base = sbrk(256);            // 256바이트 확보     ■■ call to undeclared function 'sbrk'; I
+   13 ┆ ┆ struct header *h1 = (struct header*)base;
+   14 ┆ ┆ struct header *h2 = (struct header*)((char*)base + 128);
+   15 ┆ ┆
+   16 ┆ ┆ h1->size = 128; h1->next = NULL;
+   17 ┆ ┆ h2->size = 128; h2->next = h1;
+   18 ┆ ┆
+   19 ┆ ┆ size_t hsz = sizeof(struct header);
+   20 ┆ ┆ size_t dsz = 128 - hsz;
+   21 ┆ ┆
+   22 ┆ ┆ memset((char*)h1 + hsz, 0, dsz);
+   23 ┆ ┆ memset((char*)h2 + hsz, 1, dsz);
+   24 ┆ ┆
+   25 ┆ ┆ printf("first block: %p\n", (void*)h1);
+   26 ┆ ┆ printf("second block: %p\n", (void*)h2);
+   27 ┆ ┆ printf("first block size: %lu\n", h1->size);
+   28 ┆ ┆ printf("first block next: %p\n", (void*)h1->next);
+   29 ┆ ┆ printf("second block size: %lu\n", h2->size);
+   30 ┆ ┆ printf("second block next: %p\n", (void*)h2->next);
+   31 ┆ ┆
+   32 ┆ ┆ // 데이터 값 확인
+   33 ┆ ┆ for (size_t i = 0; i < dsz; i++) printf("%d\n", *((unsigned char*)h1 + hsz + i));
+   34 ┆ ┆ for (size_t i = 0; i < dsz; i++) printf("%d\n", *((unsigned char*)h2 + hsz + i));
+   35 ┆ ┆
+   36 ┆ ┆ return 0;
+   37 }
+~
+~
+ NORMAL  lab4.c | +                                                   E: 2  unix | utf-8 | c  100%   37:1
+ lab4.c +
+    1 #include <unistd.h>
+    2 #include <stdint.h>
+    3 #include <string.h>
+    4 #include <stdio.h>
+    5
+    6 struct header {
+    7 ┆ ┆ uint64_t size;
+    8 ┆ ┆ struct header *next;
+    9 };
+   10
+   11 int main(void) {
+E  12 ┆ ┆ void *base = sbrk(256);            // 256바이트 확보     ■■ call to undeclared function 'sbrk'; ISO
+   13 ┆ ┆ struct header *h1 = (struct header*)base;
+   14 ┆ ┆ struct header *h2 = (struct header*)((char*)base + 128);
+   15 ┆ ┆
+   16 ┆ ┆ h1->size = 128; h1->next = NULL;
+   17 ┆ ┆ h2->size = 128; h2->next = h1;
+   18 ┆ ┆
+   19 ┆ ┆ size_t hsz = sizeof(struct header);
+   20 ┆ ┆ size_t dsz = 128 - hsz;
+   21 ┆ ┆
+   22 ┆ ┆ memset((char*)h1 + hsz, 0, dsz);
+   23 ┆ ┆ memset((char*)h2 + hsz, 1, dsz);
+   24 ┆ ┆
+   25 ┆ ┆ printf("first block: %p\n", (void*)h1);
+   26 ┆ ┆ printf("second block: %p\n", (void*)h2);
+   27 ┆ ┆ printf("first block size: %lu\n", h1->size);
+   28 ┆ ┆ printf("first block next: %p\n", (void*)h1->next);
+   29 ┆ ┆ printf("second block size: %lu\n", h2->size);
+   30 ┆ ┆ printf("second block next: %p\n", (void*)h2->next);
+   31 ┆ ┆
+   32 ┆ ┆ // 데이터 값 확인
+   33 ┆ ┆ for (size_t i = 0; i < dsz; i++) printf("%d\n", *((unsigned char*)h1 + hsz + i));
+   34 ┆ ┆ for (size_t i = 0; i < dsz; i++) printf("%d\n", *((unsigned char*)h2 + hsz + i));
+   35 ┆ ┆
+   36 ┆ ┆ return 0;
+   37 }
+~
+~
+~
+ NORMAL  lab4.c | +                                                     E: 2  unix | utf-8 | c  100%   37:1
+Last login: Tue Sep 30 15:57:37 on ttys000
+yewonpark@Yewons-MacBook-Pro-4 ~ % docker start -ai cmpt201
+Cannot connect to the Docker daemon at unix:///Users/yewonpark/.docker/run/docker.sock. Is the docker daemon running?
+yewonpark@Yewons-MacBook-Pro-4 ~ % docker start -ai cmpt201
+
+Ｗｅｌｃｏｍｅ  ｔｏ  ＣＭＰＴ  ２０１！
+
+"The functional programmer sounds rather like a mediæval monk, denying himself the pleasures of life in the hope that it will make him virtuous."
+	-- John Hughes, Why Functional Programming Matters
+
+~❯ ls
+a.out    cmpt201-coursework  linuxtutorialwork  sleep.c        TEST
+backups  inclass_activity    log.c              start_here.sh  units
+~❯ cd cmpt201-coursework/
+~/cmpt201-coursework❯ ls
+a.out  lab0  lab1.c  lab2  lab2.c  lab3  lab3.c  README.md
+~/cmpt201-coursework❯ nvim lab4.c
+~/cmpt201-coursework❯ clang -std=gnull -Wall lab4.c -o lab4
+error: invalid value 'gnull' in '-std=gnull'
+note: use 'c89', 'c90', or 'iso9899:1990' for 'ISO C 1990' standard
+note: use 'iso9899:199409' for 'ISO C 1990 with amendment 1' standard
+note: use 'gnu89' or 'gnu90' for 'ISO C 1990 with GNU extensions' standard
+note: use 'c99' or 'iso9899:1999' for 'ISO C 1999' standard
+note: use 'gnu99' for 'ISO C 1999 with GNU extensions' standard
+note: use 'c11' or 'iso9899:2011' for 'ISO C 2011' standard
+note: use 'gnu11' for 'ISO C 2011 with GNU extensions' standard
+note: use 'c17', 'iso9899:2017', 'c18', or 'iso9899:2018' for 'ISO C 2017' standard
+note: use 'gnu17' or 'gnu18' for 'ISO C 2017 with GNU extensions' standard
+note: use 'c23' for 'Working Draft for ISO C23' standard
+note: use 'gnu23' for 'Working Draft for ISO C23 with GNU extensions' standard
+~/cmpt201-coursework❯ clang -Wall -lab4.c -o lab4
+/usr/bin/ld: cannot find -lab4.c: No such file or directory
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+~/cmpt201-coursework❯ ls
+a.out  lab0  lab1.c  lab2  lab2.c  lab3  lab3.c  lab4.c  README.md
+~/cmpt201-coursework❯ clang -Wall lab4.c -o lab4
+~/cmpt201-coursework❯ ./lab4
+first block: 0xaaab195fb000
+second block: 0xaaab195fb080
+first block size: 128
+first block next: (nil)
+second block size: 128
+second block next: 0xaaab195fb000
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+ lab4.c
+  1 #include <stdint.h>
+  2 #include <stdio.h>
+  3 #include <string.h>
+  4 #include <unistd.h>
+  5
+  6 void *sbrk(intptr_t increment);
+  7
+  8 struct header {
+  9 ┆ uint64_t size;
+ 10 ┆ struct header *next;
+ 11 };
+ 12
+ 13 int main(void) {
+ 14 ┆ void *base = sbrk(256); // 256바이트 확보
+ 15 ┆ struct header *h1 = (struct header *)base;
+ 16 ┆ struct header *h2 = (struct header *)((char *)base + 128);
+ 17 ┆
+ 18 ┆ h1->size = 128;
+ 19 ┆ h1->next = NULL;
+ 20 ┆ h2->size = 128;
+ 21 ┆ h2->next = h1;
+ 22 ┆
+ 23 ┆ size_t hsz = sizeof(struct header);
+ 24 ┆ size_t dsz = 128 - hsz;
+ 25 ┆
+ 26 ┆ memset((char *)h1 + hsz, 0, dsz);
+ 27 ┆ memset((char *)h2 + hsz, 1, dsz);
+ 28 ┆
+ 29 ┆ printf("first block: %p\n", (void *)h1);
+ 30 ┆ printf("second block: %p\n", (void *)h2);
+ 31 ┆ printf("first block size: %lu\n", h1->size);
+ 32 ┆ printf("first block next: %p\n", (void *)h1->next);
+ 33 ┆ printf("second block size: %lu\n", h2->size);
+ 34 ┆ printf("second block next: %p\n", (void *)h2->next);
+ 35 ┆
+ 36 ┆ // 데이터 값 확인
+ 37 ┆ for (size_t i = 0; i < dsz; i++)
+ 38 ┆ ┆ printf("%d\n", *((unsigned char *)h1 + hsz + i));
+ 39 ┆ for (size_t i = 0; i < dsz; i++)
+ 40 ┆ ┆ printf("%d\n", *((unsigned char *)h2 + hsz + i));
+ INSERT  lab4.c                                                            OK  unix | utf-8 | c    2%    1:1
+

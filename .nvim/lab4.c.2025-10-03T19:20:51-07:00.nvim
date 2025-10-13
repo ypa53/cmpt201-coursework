@@ -1,0 +1,66 @@
+#define _GNU_SOURCE
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+void *sbrk(intptr_t increment);
+
+struct header {
+  uint64_t size;
+  struct header *next;
+};
+
+static void print_line(const char *fmt, void *data, size_t size) {
+  char buf[128];
+  int len;
+  if (size == sizeof(uint64_t)) {
+    len = snprintf(buf, sizeof(buf), fmt, *(uint64_t *)data);
+  } else {
+    len = snprintf(buf, sizeof(buf), fmt, *(void **)data);
+  }
+  if (len > 0)
+    write(STDOUT_FILENO, buf, (size_t)len);
+}
+
+static inline void print_byte(uint8_t v) {
+  char out[2] = {(char)('0' + (v ? 1 : 0)), '\n'};
+  write(STDOUT_FILENO, out, 2);
+}
+
+int main(void) {
+  void *base = sbrk(256);
+  if (base == (void *)-1)
+    return 1;
+
+  struct header *h1 = (struct header *)base;
+  struct header *h2 = (struct header *)((char *)base + 128);
+
+  h1->size = 128;
+  h1->next = NULL;
+  h2->size = 128;
+  h2->next = h1;
+
+  size_t hsz = sizeof(struct header);
+  size_t dsz = 128 - hsz;
+  uint8_t *d1 = (uint8_t *)((char *)h1 + hsz);
+  uint8_t *d2 = (uint8_t *)((char *)h2 + hsz);
+
+  print_line("first block:       %p\n", &h1, 0);
+  print_line("second block:      %p\n", &h2, 0);
+  print_line("first block size:  %lu\n", &h1->size, sizeof(uint64_t));
+  print_line("first block next:  %p\n", &h1->next, 0);
+  print_line("second block size: %lu\n", &h2->size, sizeof(uint64_t));
+  print_line("second block next: %p\n", &h2->next, 0);
+
+  memset(d1, 0, dsz);
+  memset(d2, 1, dsz);
+
+  for (size_t i = 0; i < dsz; ++i)
+    print_byte(*((uint8_t *)d1 + i));
+  for (size_t i = 0; i < dsz; ++i)
+    print_byte(*((uint8_t *)d2 + i));
+
+  return 0;
+}
